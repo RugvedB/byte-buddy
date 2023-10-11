@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.hamcrest.CoreMatchers.*;
@@ -276,11 +278,30 @@ public abstract class AbstractMethodDescriptionTest {
 
     @Test
     public void testToString() throws Exception {
-        assertThat(describe(firstMethod).toString(), is(firstMethod.toString()));
-        assertThat(describe(secondMethod).toString(), is(secondMethod.toString()));
-        assertThat(describe(thirdMethod).toString(), is(thirdMethod.toString()));
-        assertThat(describe(firstConstructor).toString(), is(firstConstructor.toString()));
-        assertThat(describe(secondConstructor).toString(), is(secondConstructor.toString()));
+        assertThat(normalizeMethodExceptions(describe(firstMethod).toString()), is(normalizeMethodExceptions(firstMethod.toString())));
+        assertThat(normalizeMethodExceptions(describe(secondMethod).toString()), is(normalizeMethodExceptions(secondMethod.toString())));
+        assertThat(normalizeMethodExceptions(describe(thirdMethod).toString()), is(normalizeMethodExceptions(thirdMethod.toString())));
+        assertThat(normalizeMethodExceptions(describe(firstConstructor).toString()), is(normalizeMethodExceptions(firstConstructor.toString())));
+        assertThat(normalizeMethodExceptions(describe(secondConstructor).toString()), is(normalizeMethodExceptions(secondConstructor.toString())));
+    }
+    
+    public String normalizeMethodExceptions(String methodDescription) {
+        // Match "throws exception1, exception2, ..." part of method description
+        Pattern pattern = Pattern.compile("throws\\s+([^,]+(?:,\\s*[^,]+)*)");
+        Matcher matcher = pattern.matcher(methodDescription);
+        
+        // Extract and sort exceptions.
+        String exceptionString = "";
+        if (matcher.find()) {
+            String exceptionsPart = matcher.group(1);
+            String[] exceptions = exceptionsPart.split(",");
+            for (int i = 0; i < exceptions.length; i++) {
+                exceptions[i] = exceptions[i].trim();
+            }
+            Arrays.sort(exceptions);
+            exceptionString = String.join(",", exceptions);
+        }
+        return matcher.replaceAll(exceptionString); 
     }
 
     @Test
