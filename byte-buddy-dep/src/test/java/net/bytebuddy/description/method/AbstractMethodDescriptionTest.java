@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Comparator;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.hamcrest.CoreMatchers.*;
@@ -608,13 +609,23 @@ public abstract class AbstractMethodDescriptionTest {
         assertThat(describe(firstMethod).getExceptionTypes(),
                 is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(firstMethod.getExceptionTypes())));
         assertThat(describe(secondMethod).getExceptionTypes(),
-                is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(secondMethod.getExceptionTypes())));
+                is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(sortExceptions(secondMethod.getExceptionTypes()))));
         assertThat(describe(thirdMethod).getExceptionTypes(),
                 is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(thirdMethod.getExceptionTypes())));
         assertThat(describe(firstConstructor).getExceptionTypes(),
                 is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(firstConstructor.getExceptionTypes())));
         assertThat(describe(secondConstructor).getExceptionTypes(),
                 is((TypeList.Generic) new TypeList.Generic.ForLoadedTypes(secondConstructor.getExceptionTypes())));
+    }
+
+    private Class<?>[] sortExceptions(Class<?>[] exceptionTypes) {
+        Arrays.sort(exceptionTypes, new Comparator<Class<?>>() {
+            @Override
+            public int compare(Class<?> type1, Class<?> type2) {
+                return type1.getName().compareTo(type2.getName());
+            }
+        });
+        return exceptionTypes;
     }
 
     @Test

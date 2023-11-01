@@ -38,6 +38,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Comparator;
 
 /**
  * Implementations represent a list of type descriptions.
@@ -1012,10 +1013,20 @@ public interface TypeList extends FilterableList<TypeDescription, TypeList> {
                 @Override
                 @CachedReturnPlugin.Enhance("resolved")
                 protected TypeDescription.Generic resolve() {
-                    java.lang.reflect.Type[] type = method.getGenericExceptionTypes();
+                    java.lang.reflect.Type[] type = sortTypes(method.getGenericExceptionTypes());
                     return erasure.length == type.length
                             ? Sort.describe(type[index], getAnnotationReader())
                             : asRawType();
+                }
+
+                java.lang.reflect.Type[] sortTypes(java.lang.reflect.Type[] type) {
+                    Arrays.sort(type, new Comparator<java.lang.reflect.Type>() {
+                        @Override
+                        public int compare(java.lang.reflect.Type type1, java.lang.reflect.Type type2) {
+                            return type1.toString().compareTo(type2.toString());
+                        }
+                    });
+                    return type;
                 }
 
                 /**
