@@ -2511,7 +2511,7 @@ public interface AnnotationValue<T, S> {
             }
             AnnotationValue<?, ?> annotationValue = (AnnotationValue<?, ?>) other;
             Object value = annotationValue.resolve();
-            if (!value.getClass().isArray()) {
+            if (value == null || !value.getClass().isArray()) {
                 return false;
             }
             if (values.size() != Array.getLength(value)) {
